@@ -8,6 +8,7 @@ import os
 import re
 import copy
 import time
+import unicodecsv as ucsv
 from tika import parser
 from docx import Document
 from html import unescape
@@ -94,7 +95,7 @@ while 1:
 
         pdf_file = spy_folder + '/' + file     # pdf_file 为源文件的完整地址
         word_file = config['save_folder'] + '/' + file_name + '.docx'     # word_file 为文件存储地址
-        # text_file = config['save_folder'] + '/' + file_name + '.txt'     # word_file 为文件存储地址
+        text_file = config['save_folder'] + '/' + file_name + '.txt'     # word_file 为文件存储地址
         parse_entire_pdf = parser.from_file(pdf_file, xmlContent=True)
         parse_entire_pdf = parse_entire_pdf['content']
         content = html_to_plain_text(parse_entire_pdf)
@@ -102,18 +103,32 @@ while 1:
         pattern = re.compile(".*" + key_word + ".*", re.I)
         result = pattern.findall(content)
         print("共计段数：", len(result))
-        result_text = ""
+
+        result_csv = list()
+        result_csv.append("标题：" + file_name)
+        # result_csv.append("作者：" + file_name + "\n")
+        result_text = "标题：" + file_name
+        # result_text += "\n作者：" + file_name + "\n"
+
         cnt = 1
         for para in result:
             # para = re.sub(key_word, "  ——>" + key_word + "<——  ", para, flags = re.I)
             print("第", cnt, "段：", para, "\n")
+            result_csv.append(para)
             result_text += para
             result_text += "\n"
             cnt += 1
-        # save_text(result_text)
+        print(result_csv)
+        save_text(content)
         save_text_to_word(result_text, word_file)
         print("处理完毕！")
     if flag == '2':
         break
 os.system("pause")
 
+'''
+data = [[u"列1", u"列2"], [u"内容1", u"内容2"]]
+with open('test.csv', 'wb') as f:
+    w = ucsv.writer(f, encoding = 'gbk')
+    w.writerows(data)
+'''
